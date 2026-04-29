@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>沖繩 4天3夜 精華自駕</title>
+    <title>沖繩 4天3夜 終極自駕指南</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -11,35 +11,31 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f1f5f9; margin: 0; }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f8fafc; margin: 0; }
         #map { height: 100%; width: 100%; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .spot-card { transition: all 0.3s ease; border-left: 4px solid transparent; }
+        .spot-card { transition: all 0.3s ease; border-left: 5px solid transparent; }
         .spot-card.active { border-left-color: #3b82f6; background-color: #fff; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
         
-        /* 手機端：地圖在上佔 40%，列表在下佔 60% */
         @media (max-width: 768px) {
             #app { height: 100vh; display: flex; flex-direction: column; }
-            #map-view { height: 40vh; position: sticky; top: 0; z-index: 50; flex-shrink: 0; }
-            #list-view { height: 60vh; overflow-y: auto; flex-grow: 1; }
+            #map-view { height: 38vh; position: sticky; top: 0; z-index: 50; flex-shrink: 0; }
+            #list-view { height: 62vh; overflow-y: auto; flex-grow: 1; }
         }
-        /* 電腦端：左側列表，右側地圖 */
         @media (min-width: 769px) {
             #app { height: 100vh; display: flex; overflow: hidden; }
             #map-view { flex: 1; order: 2; }
-            #list-view { width: 400px; order: 1; overflow-y: auto; }
+            #list-view { width: 420px; order: 1; overflow-y: auto; }
         }
     </style>
 </head>
 <body>
     <div id="app">
-        <div id="map-view" class="bg-slate-200 shadow-md">
-            <div id="map"></div>
-        </div>
+        <div id="map-view" class="shadow-lg"><div id="map"></div></div>
 
         <div id="list-view" class="bg-white">
             <header class="p-6 border-b sticky top-0 bg-white/95 backdrop-blur-md z-10">
-                <h1 class="text-xl font-black text-slate-800">沖繩 4天3夜 自駕遊</h1>
+                <h1 class="text-xl font-black text-slate-800 tracking-tight">🚗 沖繩終極自駕行程</h1>
                 <div class="flex space-x-2 mt-4 overflow-x-auto no-scrollbar">
                     <button v-for="n in 4" :key="n" @click="activeDay = n" 
                         :class="['px-4 py-2 rounded-xl text-sm font-black transition-all whitespace-nowrap', 
@@ -51,31 +47,37 @@
 
             <div class="p-4 space-y-6">
                 <div v-for="(item, index) in currentDayItems" 
-                     :key="index" 
-                     :id="'spot-' + index"
-                     class="spot-card p-4 rounded-2xl bg-slate-50/50"
+                     :key="index" :id="'spot-' + index"
+                     class="spot-card p-5 rounded-2xl bg-slate-50/50"
                      :data-lat="item.lat" :data-lng="item.lng">
                     
-                    <div class="relative w-full h-40 mb-3 overflow-hidden rounded-xl shadow-inner bg-slate-200">
-                        <img :src="item.img" class="w-full h-full object-cover" :alt="item.location" 
-                             onerror="this.src='https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=500'">
-                        <div class="absolute bottom-2 left-3 text-white drop-shadow-md">
-                            <div class="text-[10px] font-bold opacity-90">{{ item.time }}</div>
-                            <h3 class="text-lg font-black">{{ item.location }}</h3>
-                        </div>
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="bg-blue-100 text-blue-700 text-[10px] px-2 py-1 rounded-md font-bold">{{ item.time }}</span>
+                        <span class="text-slate-400 text-[10px] font-bold"><i class="far fa-clock mr-1"></i>停留 {{ item.stay }}</span>
                     </div>
 
-                    <div class="px-1">
-                        <p class="text-slate-600 text-sm mb-2">{{ item.note }}</p>
-                        <div v-if="item.alert" class="bg-amber-50 text-amber-700 p-2 rounded-lg text-[11px] font-bold mb-2">
-                            <i class="fas fa-exclamation-triangle mr-1"></i> {{ item.alert }}
+                    <div class="relative w-full h-44 mb-4 overflow-hidden rounded-2xl shadow-sm bg-slate-200">
+                        <img :src="item.img" class="w-full h-full object-cover" :alt="item.location" 
+                             onerror="this.src='https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=500'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                        <h3 class="absolute bottom-3 left-4 text-white text-lg font-black">{{ item.location }}</h3>
+                    </div>
+
+                    <div class="space-y-3">
+                        <p class="text-slate-700 text-sm font-medium leading-relaxed">
+                            <i class="fas fa-star text-yellow-400 mr-1"></i>活動：{{ item.note }}
+                        </p>
+                        
+                        <div v-if="item.alert" class="bg-blue-50 text-blue-700 p-3 rounded-xl text-[11px] font-bold">
+                            <i class="fas fa-info-circle mr-1"></i> {{ item.alert }}
                         </div>
-                        <div class="text-[10px] text-slate-400 font-bold uppercase">
-                            <i class="fas fa-car-side mr-1"></i> {{ item.drive }}
+
+                        <div class="flex items-center text-[11px] text-slate-400 font-bold border-t pt-3">
+                            <i class="fas fa-car-side text-blue-400 mr-2"></i> 下一段路程：{{ item.drive }}
                         </div>
                     </div>
                 </div>
-                <div class="h-20"></div>
+                <div class="h-32"></div>
             </div>
         </div>
     </div>
@@ -91,24 +93,28 @@
                 
                 const itinerary = ref({
                     1: [
-                        { time: '12:20 - 13:30', location: '那霸機場', note: '抵達並取車。', drive: '取車預留 1 小時', lat: 26.2064, lng: 127.6465, img: 'https://rimage.gnst.jp/livejapan.com/public/article/detail/a/00/03/a0003004/img/basic/a0003004_main.jpg' },
-                        { time: '14:00 - 15:30', location: '瀨長島 Umikaji', note: '看飛機、吃幸福鬆餅。', alert: '鬆餅需提前預約', lat: 26.1745, lng: 127.6461, img: 'https://www.umikajiterrace.com/wp-content/uploads/2021/04/main_v.jpg' },
-                        { time: '15:50 - 16:45', location: '波上宮', note: '參拜懸崖上的神社。', drive: '車程 20 分鐘', lat: 26.2208, lng: 127.6711, img: 'https://images.fineartamerica.com/images/artworkimages/mediumlarge/3/naminoue-shrine-okinawa-japan-vladimir-pustovit.jpg' }
+                        { time: '12:20 - 13:45', location: '那霸機場 (取車)', stay: '1.5 小時', note: '抵達並完成租車手續。', drive: '🚗 15 分鐘', lat: 26.2064, lng: 127.6465, img: 'https://rimage.gnst.jp/livejapan.com/public/article/detail/a/00/03/a0003004/img/basic/a0003004_main.jpg' },
+                        { time: '13:45 - 15:30', location: '瀨長島 Umikaji Terrace', stay: '1 小時 45 分', note: '吃幸福鬆餅、拍純白階梯海景。', drive: '🚗 20 分鐘', lat: 26.1745, lng: 127.6461, img: 'https://www.umikajiterrace.com/wp-content/uploads/2021/04/main_v.jpg' },
+                        { time: '15:50 - 16:50', location: '波上宮', stay: '1 小時', note: '參拜神社、到沙灘拍懸崖絕景。', drive: '🚗 15 分鐘', lat: 26.2208, lng: 127.6711, img: 'https://images.fineartamerica.com/images/artworkimages/mediumlarge/3/naminoue-shrine-okinawa-japan-vladimir-pustovit.jpg' },
+                        { time: '18:40 - 20:30', location: '目利銀次 (新都心店)', stay: '2 小時', note: '享受木桶構造建築與鮮魚料理。', drive: '🚗 10 分鐘', lat: 26.2289, lng: 127.6947, img: 'https://img.ltn.com.tw/Upload/playing/page/2018/10/24/181024-11110-1-pMvB9.jpg' },
+                        { time: '21:00 - 23:00', location: 'Churasun 6 歌舞秀', stay: '2 小時', note: '高人氣主題歌舞表演。', drive: '住宿：那霸市區', lat: 26.2162, lng: 127.6795, img: 'https://lh3.googleusercontent.com/p/AF1QipNis-N_p2_G3G4M5i3E-zD7N5hXy_n7z_6_0_X' }
                     ],
                     2: [
-                        { time: '09:30 - 12:30', location: '砂邊潛水點', note: '潛水、浜屋蕎麥麵。', lat: 26.3283, lng: 127.7433, img: 'https://travel.rakuten.com.tw/mytrip/sites/mytrip/files/2021-08/okinawa-diving_06.jpg' },
-                        { time: '13:00 - 15:00', location: '美國村', note: '漫步美式街道。', drive: '車程 10 分鐘', lat: 26.3163, lng: 127.7567, img: 'https://images.unsplash.com/photo-1542931287-023b922fa89b?w=500' },
-                        { time: '15:20 - 17:30', location: 'AEON MALL Rycom', note: '重點：1F 寶可夢中心。', alert: '沖繩限定皮卡丘必買', lat: 26.3142, lng: 127.7941, img: 'https://www.pokemon.co.jp/gp/pokecen/okinawa/images/main.jpg' }
+                        { time: '10:00 - 13:00', location: '砂邊潛水 & 浜屋午餐', stay: '3 小時', note: '潛水體驗、簡單梳洗後吃軟骨麵。', drive: '🚗 10 分鐘', lat: 26.3283, lng: 127.7433, img: 'https://travel.rakuten.com.tw/mytrip/sites/mytrip/files/2021-08/okinawa-diving_06.jpg' },
+                        { time: '13:10 - 14:40', location: '美國村', stay: '1.5 小時', note: '漫步海濱步道、拍彩色建築。', drive: '🚗 20 分鐘', lat: 26.3163, lng: 127.7567, img: 'https://images.unsplash.com/photo-1542931287-023b922fa89b?w=500' },
+                        { time: '15:00 - 17:30', location: 'AEON MALL Rycom', stay: '2.5 小時', note: '1F 掃貨沖繩限定皮卡丘。', alert: '寶可夢中心限定商品極多', drive: '🚗 35 分鐘', lat: 26.3142, lng: 127.7941, img: 'https://www.pokemon.co.jp/gp/pokecen/okinawa/images/main.jpg' },
+                        { time: '18:10 - 20:10', location: '琉球之牛 (恩納店)', stay: '2 小時', note: '享用頂級燒肉晚餐。', alert: '需準時抵達預約位子', drive: '🚗 25 分鐘至飯店', lat: 26.4475, lng: 127.8105, img: 'https://www.u-shi.net/images/top_visual_01_pc.jpg' }
                     ],
                     3: [
-                        { time: '09:00 - 12:00', location: '美麗海水族館', note: '鯨鯊與黑潮之海。', lat: 26.6944, lng: 127.8779, img: 'https://churaumi.okinawa/userfiles/files/shisetsu/main_visual01.jpg' },
-                        { time: '12:40 - 15:00', location: '古宇利島', note: '心形岩、蝦蝦飯。', drive: '跨海大橋必拍', lat: 26.7118, lng: 128.0163, img: 'https://rimage.gnst.jp/livejapan.com/public/article/detail/a/00/03/a0003011/img/basic/a0003011_main.jpg' },
-                        { time: '15:30 - 17:30', location: '殘波岬燈塔', note: '看壯觀夕陽。', lat: 26.4385, lng: 127.7148, img: 'https://www.visitokinawa.jp/wp-content/uploads/2019/12/Zampamisaki-Lighthouse_04.jpg' }
+                        { time: '09:40 - 12:40', location: '美麗海水族館', stay: '3 小時', note: '看黑潮之海餵食秀 (10:30/11:30)。', drive: '🚗 40 分鐘', lat: 26.6944, lng: 127.8779, img: 'https://churaumi.okinawa/userfiles/files/shisetsu/main_visual01.jpg' },
+                        { time: '13:20 - 15:20', location: '古宇利島', stay: '2 小時', note: '心形岩拍照、吃蝦蝦飯午餐。', drive: '🚗 50 分鐘', lat: 26.7118, lng: 128.0163, img: 'https://rimage.gnst.jp/livejapan.com/public/article/detail/a/00/03/a0003011/img/basic/a0003011_main.jpg' },
+                        { time: '16:10 - 17:30', location: '殘波岬燈塔', stay: '1 小時 20 分', note: '看燈塔海景夕陽，避開人潮。', drive: '🚗 15 分鐘', lat: 26.4385, lng: 127.7148, img: 'https://www.visitokinawa.jp/wp-content/uploads/2019/12/Zampamisaki-Lighthouse_04.jpg' },
+                        { time: '17:45 - 19:45', location: '百年古家 大家', stay: '2 小時', note: '古宅內享用阿古豬涮涮鍋。', drive: '🚗 30 分鐘返程', lat: 26.6217, lng: 127.9644, img: 'https://www.ufuya.com/common/images/home/main_visual01.jpg' }
                     ],
                     4: [
-                        { time: '09:00 - 11:30', location: '玉泉洞', note: '鐘乳石洞景觀。', lat: 26.1397, lng: 127.7503, img: 'https://www.gyokusendo.co.jp/okinawaworld/common/images/main_visual_pc.jpg' },
-                        { time: '11:50 - 12:45', location: '糸滿魚市場', note: '海鮮最後衝刺。', lat: 26.1311, lng: 127.6534, img: 'https://rimage.gnst.jp/livejapan.com/public/article/detail/a/00/03/a0003015/img/basic/a0003015_main.jpg' },
-                        { time: '12:55 - 14:30', location: 'ASHIBINAA Outlet', note: '精品最後採買。', lat: 26.1585, lng: 127.6575, img: 'https://www.ashibinaa.com/images/main_visual01.jpg' }
+                        { time: '09:50 - 11:30', location: '玉泉洞 (沖繩世界)', stay: '1 小時 40 分', note: '探索 30 萬年鐘乳石洞窟。', drive: '🚗 20 分鐘', lat: 26.1397, lng: 127.7503, img: 'https://www.gyokusendo.co.jp/okinawaworld/common/images/main_visual_pc.jpg' },
+                        { time: '11:50 - 12:50', location: '糸滿魚市場', stay: '1 小時', note: '品嚐現剖生蠔、炙燒海鮮。', drive: '🚗 10 分鐘', lat: 26.1311, lng: 127.6534, img: 'https://rimage.gnst.jp/livejapan.com/public/article/detail/a/00/03/a0003015/img/basic/a0003015_main.jpg' },
+                        { time: '13:00 - 14:30', location: 'ASHIBINAA Outlet', stay: '1.5 小時', note: '最後登機前的補貨衝刺。', drive: '🚗 15 分鐘至還車點', lat: 26.1585, lng: 127.6575, img: 'https://www.ashibinaa.com/images/main_visual01.jpg' }
                     ]
                 });
 
@@ -129,7 +135,7 @@
                     );
                     if (markers.value.length) {
                         const group = new L.featureGroup(markers.value);
-                        map.value.fitBounds(group.getBounds().pad(0.15));
+                        map.value.fitBounds(group.getBounds().pad(0.2));
                     }
                 };
 
@@ -139,12 +145,12 @@
                             if (entry.isIntersecting) {
                                 const lat = entry.target.getAttribute('data-lat');
                                 const lng = entry.target.getAttribute('data-lng');
-                                map.value.flyTo([lat, lng], 14, { animate: true });
+                                if(map.value) map.value.flyTo([lat, lng], 14, { animate: true });
                                 document.querySelectorAll('.spot-card').forEach(el => el.classList.remove('active'));
                                 entry.target.classList.add('active');
                             }
                         });
-                    }, { threshold: 0.6, rootMargin: '0px 0px -20% 0px' });
+                    }, { threshold: 0.5, rootMargin: '0px 0px -20% 0px' });
                     document.querySelectorAll('.spot-card').forEach(el => observer.observe(el));
                 };
 

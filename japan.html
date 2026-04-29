@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>沖繩 4天3夜 精華自駕指南</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f1f5f9; }
+        #map { height: 100%; width: 100%; border-radius: 2rem; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .spot-card { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); border: 2px solid transparent; }
+        .spot-card.active { border-color: #3b82f6; background-color: #fff; box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.1); transform: scale(1.02); }
+        .img-gradient { background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 50%); }
+        @media (max-width: 768px) { #map-container { height: 280px; position: sticky; top: 0; z-index: 50; } }
+    </style>
+</head>
+<body class="overflow-hidden">
+    <div id="app" class="flex flex-col md:flex-row h-screen">
+        
+        <div class="w-full md:w-5/12 lg:w-4/12 flex flex-col h-full bg-white shadow-2xl z-10">
+            <header class="p-6 border-b bg-white/95 backdrop-blur-md sticky top-0 z-20">
+                <h1 class="text-2xl font-black text-slate-800 tracking-tighter">沖繩 4天3夜：精華自駕</h1>
+                <p class="text-blue-600 font-bold text-sm mt-1">2026.06.17 - 06.20</p>
+                
+                <div class="flex space-x-2 mt-5 overflow-x-auto no-scrollbar">
+                    <button v-for="n in 4" :key="n" @click="activeDay = n" 
+                        :class="['px-5 py-2.5 rounded-2xl text-sm font-black transition-all', 
+                        activeDay === n ? 'bg-blue-600 text-white shadow-lg' : 'bg-slate-100 text-slate-400 hover:bg-slate-200']">
+                        DAY {{ n }}
+                    </button>
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-4 space-y-6 no-scrollbar" ref="scrollContainer">
+                <div v-for="(item, index) in currentDayItems" 
+                     :key="index" 
+                     :id="'spot-' + index"
+                     class="spot-card p-4 rounded-[2.5rem] bg-slate-50/50"
+                     :data-lat="item.lat" :data-lng="item.lng">
+                    
+                    <div class="relative w-full h-56 mb-4 overflow-hidden rounded-[2rem] shadow-md">
+                        <img :src="item.img" class="w-full h-full object-cover" :alt="item.location">
+                        <div class="absolute inset-0 img-gradient"></div>
+                        <div class="absolute bottom-4 left-5 text-white">
+                            <div class="text-xs font-bold opacity-90 mb-1">{{ item.time }}</div>
+                            <h3 class="text-xl font-black">{{ item.location }}</h3>
+                        </div>
+                    </div>
+
+                    <div class="px-2 pb-2">
+                        <p class="text-slate-600 text-sm leading-relaxed mb-3">{{ item.note }}</p>
+                        
+                        <div v-if="item.alert" class="bg-blue-50 text-blue-700 p-3 rounded-2xl text-xs font-bold flex items-center mb-3">
+                            <i class="fas fa-info-circle mr-2"></i> {{ item.alert }}
+                        </div>
+
+                        <div class="flex items-center text-[10px] text-slate-400 font-bold tracking-widest uppercase">
+                            <i class="fas fa-car-side mr-1.5"></i> {{ item.drive }}
+                        </div>
+                    </div>
+                </div>
+                <div class="h-64"></div>
+            </div>
+        </div>
+
+        <div id="map-container" class="flex-1 bg-slate-200 p-4">
+            <div id="map" class="shadow-2xl border-[12px] border-white"></div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, onMounted, watch, computed } = Vue;
+
+        createApp({
+            setup() {
+                const activeDay = ref(1);
+                const map = ref(null);
+                const markers = ref([]);
+                
+                const itinerary = ref({
+                    1: [
+                        { time: '12:20 - 13:30', location: '那霸機場', note: '抵達並完成租車。', drive: '預留 1 小時取車', lat: 26.2064, lng: 127.6465, img: 'http://googleusercontent.com/image_collection/image_retrieval/18070598771981303660_0' },
+                        { time: '14:00 - 15:30', location: '瀨長島 Umikaji', note: '希臘風建築、看飛機。', alert: '必預約：幸福鬆餅', lat: 26.1745, lng: 127.6461, img: 'http://googleusercontent.com/image_collection/image_retrieval/5943917566397627053_0' },
+                        { time: '15:50 - 16:45', location: '波上宮', note: '參拜懸崖上的神社、買御守。', drive: '車程 20 分鐘', lat: 26.2208, lng: 127.6711, img: 'http://googleusercontent.com/image_collection/image_retrieval/7848503628720878107_0' },
+                        { time: '17:00 ~', location: '國際通飯店', note: '辦理入住，晚上逛街晚餐。', drive: '車程 15 分鐘', lat: 26.2155, lng: 127.6851, img: 'http://googleusercontent.com/image_collection/image_retrieval/425564182365260816_0' }
+                    ],
+                    2: [
+                        { time: '09:30 - 12:30', location: '砂邊潛水點', note: '潛水體驗、午餐吃浜屋蕎麥麵。', lat: 26.3283, lng: 127.7433, img: 'http://googleusercontent.com/image_collection/image_retrieval/11013109927518652287_0' },
+                        { time: '13:00 - 15:00', location: '美國村', note: '漫步美式風情街道。', drive: '車程 10 分鐘', lat: 26.3163, lng: 127.7567, img: 'http://googleusercontent.com/image_collection/image_retrieval/9900968077599031916_0' },
+                        { time: '15:20 - 17:30', location: 'AEON MALL Rycom', note: '重點：1F 寶可夢中心，買限定皮卡丘。', drive: '車程 20 分鐘', lat: 26.3142, lng: 127.7941, img: 'http://googleusercontent.com/image_collection/image_retrieval/1318296853961432082_0' },
+                        { time: '18:15 ~', location: '名護飯店', note: '前往北部住宿點。', drive: '車程 45 分鐘', lat: 26.5915, lng: 127.9775, img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800' }
+                    ],
+                    3: [
+                        { time: '09:00 - 12:00', location: '美麗海水族館', note: '看巨大鯨鯊與黑潮之海。', lat: 26.6944, lng: 127.8779, img: 'http://googleusercontent.com/image_collection/image_retrieval/11928344153965195785_0' },
+                        { time: '12:40 - 15:00', location: '古宇利島', note: '跨越最美大橋、心形岩拍照。', drive: '車程 40 分鐘', lat: 26.7118, lng: 128.0163, img: 'http://googleusercontent.com/image_collection/image_retrieval/8330631990384596639_0' },
+                        { time: '15:30 - 17:30', location: '殘波岬燈塔', note: '看燈塔與壯闊夕陽。', alert: '替代萬座毛行程', lat: 26.4385, lng: 127.7148, img: 'http://googleusercontent.com/image_collection/image_retrieval/17304240632473602939_0' },
+                        { time: '17:45 ~', location: '百年古家 大家', note: '享用阿古豬大餐。', alert: '建議預約', lat: 26.6217, lng: 127.9644, img: 'http://googleusercontent.com/image_collection/image_retrieval/7257249681204978329_0' }
+                    ],
+                    4: [
+                        { time: '09:00 - 11:30', location: '玉泉洞', note: '壯觀鐘乳石洞與王國村。', lat: 26.1397, lng: 127.7503, img: 'http://googleusercontent.com/image_collection/image_retrieval/13025720447973238334_0' },
+                        { time: '11:50 - 12:45', location: '糸滿魚市場', note: '最後海鮮衝刺。', drive: '離機場近好掌控時間', lat: 26.1311, lng: 127.6534, img: 'http://googleusercontent.com/image_collection/image_retrieval/5905154409957057003_0' },
+                        { time: '12:55 - 14:30', location: 'ASHIBINAA Outlet', note: '回程前最後採買。', lat: 26.1585, lng: 127.6575, img: 'http://googleusercontent.com/image_collection/image_retrieval/15734631069828574714_0' },
+                        { time: '14:45 ~', location: '機場還車', note: '16:45 班機起飛。', alert: '最晚 14:45 還車', lat: 26.2064, lng: 127.6465, img: 'https://images.unsplash.com/photo-1436491865332-7a61a109c0f2?w=800' }
+                    ]
+                });
+
+                const currentDayItems = computed(() => itinerary.value[activeDay.value]);
+
+                onMounted(() => {
+                    map.value = L.map('map', { zoomControl: false }).setView([26.3, 127.7], 11);
+                    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(map.value);
+                    updateMarkers();
+                    initScrollObserver();
+                });
+
+                const updateMarkers = () => {
+                    markers.value.forEach(m => map.value.removeLayer(m));
+                    markers.value = currentDayItems.value.map(p => 
+                        L.marker([p.lat, p.lng]).addTo(map.value).bindPopup(`<b>${p.location}</b>`)
+                    );
+                    if (markers.value.length) map.value.flyTo([currentDayItems.value[0].lat, currentDayItems.value[0].lng], 11);
+                };
+
+                const initScrollObserver = () => {
+                    const observer = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                const lat = entry.target.getAttribute('data-lat');
+                                const lng = entry.target.getAttribute('data-lng');
+                                map.value.flyTo([lat, lng], 14, { animate: true, duration: 1.5 });
+                                document.querySelectorAll('.spot-card').forEach(el => el.classList.remove('active'));
+                                entry.target.classList.add('active');
+                            }
+                        });
+                    }, { threshold: 0.6, rootMargin: '0px 0px -30% 0px' });
+                    document.querySelectorAll('.spot-card').forEach(el => observer.observe(el));
+                };
+
+                watch(activeDay, () => setTimeout(() => { updateMarkers(); initScrollObserver(); }, 100));
+
+                return { activeDay, currentDayItems };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

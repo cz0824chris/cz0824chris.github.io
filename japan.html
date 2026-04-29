@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>沖繩 4天3夜：精華自駕指南</title>
+    <title>沖繩 4天3夜 精華自駕</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -11,29 +11,35 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f1f5f9; margin: 0; padding: 0; }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f1f5f9; margin: 0; }
         #map { height: 100%; width: 100%; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .spot-card { transition: all 0.4s ease; border: 2px solid transparent; }
-        .spot-card.active { border-color: #3b82f6; background-color: #fff; box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.2); transform: translateY(-5px); }
-        .img-gradient { background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%); }
-        @media (max-width: 768px) { 
-            #map-container { height: 40vh; width: 100%; position: sticky; top: 0; z-index: 50; }
-            #app { flex-direction: column; overflow-y: auto; height: auto; }
-            .list-container { height: auto; width: 100%; }
+        .spot-card { transition: all 0.3s ease; border-left: 4px solid transparent; }
+        .spot-card.active { border-left-color: #3b82f6; background-color: #fff; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        
+        /* 手機端：地圖在上佔 40%，列表在下佔 60% */
+        @media (max-width: 768px) {
+            #app { height: 100vh; display: flex; flex-direction: column; }
+            #map-view { height: 40vh; position: sticky; top: 0; z-index: 50; flex-shrink: 0; }
+            #list-view { height: 60vh; overflow-y: auto; flex-grow: 1; }
+        }
+        /* 電腦端：左側列表，右側地圖 */
+        @media (min-width: 769px) {
+            #app { height: 100vh; display: flex; overflow: hidden; }
+            #map-view { flex: 1; order: 2; }
+            #list-view { width: 400px; order: 1; overflow-y: auto; }
         }
     </style>
 </head>
 <body>
-    <div id="app" class="flex flex-col md:flex-row h-screen overflow-hidden">
-        
-        <div id="map-container" class="flex-1 bg-slate-200 md:order-2">
+    <div id="app">
+        <div id="map-view" class="bg-slate-200 shadow-md">
             <div id="map"></div>
         </div>
 
-        <div class="list-container w-full md:w-5/12 lg:w-4/12 flex flex-col h-full bg-white shadow-2xl z-10 md:order-1">
-            <header class="p-6 border-b bg-white/95 backdrop-blur-md sticky top-0 z-20">
-                <h1 class="text-xl md:text-2xl font-black text-slate-800">沖繩 4天3夜：精華自駕</h1>
+        <div id="list-view" class="bg-white">
+            <header class="p-6 border-b sticky top-0 bg-white/95 backdrop-blur-md z-10">
+                <h1 class="text-xl font-black text-slate-800">沖繩 4天3夜 自駕遊</h1>
                 <div class="flex space-x-2 mt-4 overflow-x-auto no-scrollbar">
                     <button v-for="n in 4" :key="n" @click="activeDay = n" 
                         :class="['px-4 py-2 rounded-xl text-sm font-black transition-all whitespace-nowrap', 
@@ -43,33 +49,33 @@
                 </div>
             </header>
 
-            <div class="flex-1 overflow-y-auto p-4 space-y-6 no-scrollbar" ref="scrollContainer">
+            <div class="p-4 space-y-6">
                 <div v-for="(item, index) in currentDayItems" 
                      :key="index" 
                      :id="'spot-' + index"
-                     class="spot-card p-4 rounded-[2rem] bg-slate-50/50"
+                     class="spot-card p-4 rounded-2xl bg-slate-50/50"
                      :data-lat="item.lat" :data-lng="item.lng">
                     
-                    <div class="relative w-full h-48 md:h-56 mb-4 overflow-hidden rounded-[1.5rem] shadow-sm bg-slate-200">
-                        <img :src="item.img.replace('http://', 'https://')" class="w-full h-full object-cover" :alt="item.location" onerror="this.src='https://images.unsplash.com/photo-1523413651479-597eb2da0ad6?w=800'">
-                        <div class="absolute inset-0 img-gradient"></div>
-                        <div class="absolute bottom-4 left-5 text-white">
-                            <div class="text-xs font-bold opacity-80">{{ item.time }}</div>
+                    <div class="relative w-full h-40 mb-3 overflow-hidden rounded-xl shadow-inner bg-slate-200">
+                        <img :src="item.img" class="w-full h-full object-cover" :alt="item.location" 
+                             onerror="this.src='https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=500'">
+                        <div class="absolute bottom-2 left-3 text-white drop-shadow-md">
+                            <div class="text-[10px] font-bold opacity-90">{{ item.time }}</div>
                             <h3 class="text-lg font-black">{{ item.location }}</h3>
                         </div>
                     </div>
 
-                    <div class="px-2">
-                        <p class="text-slate-600 text-sm mb-3">{{ item.note }}</p>
-                        <div v-if="item.alert" class="bg-blue-50 text-blue-700 p-3 rounded-xl text-xs font-bold mb-2">
-                            <i class="fas fa-info-circle mr-1"></i> {{ item.alert }}
+                    <div class="px-1">
+                        <p class="text-slate-600 text-sm mb-2">{{ item.note }}</p>
+                        <div v-if="item.alert" class="bg-amber-50 text-amber-700 p-2 rounded-lg text-[11px] font-bold mb-2">
+                            <i class="fas fa-exclamation-triangle mr-1"></i> {{ item.alert }}
                         </div>
-                        <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-                            <i class="fas fa-car mr-1"></i> {{ item.drive }}
+                        <div class="text-[10px] text-slate-400 font-bold uppercase">
+                            <i class="fas fa-car-side mr-1"></i> {{ item.drive }}
                         </div>
                     </div>
                 </div>
-                <div class="h-32 md:h-64"></div>
+                <div class="h-20"></div>
             </div>
         </div>
     </div>
@@ -85,45 +91,35 @@
                 
                 const itinerary = ref({
                     1: [
-                        { time: '12:20 - 13:30', location: '那霸機場', note: '抵達並完成租車。', drive: '預留 1 小時取車', lat: 26.2064, lng: 127.6465, img: 'https://googleusercontent.com/image_collection/image_retrieval/18070598771981303660_0' },
-                        { time: '14:00 - 15:30', location: '瀨長島 Umikaji', note: '希臘風建築、吃幸福鬆餅。', alert: '必預約：幸福鬆餅', lat: 26.1745, lng: 127.6461, img: 'https://googleusercontent.com/image_collection/image_retrieval/5943917566397627053_0' },
-                        { time: '15:50 - 16:45', location: '波上宮', note: '參拜懸崖上的神社。', drive: '車程 20 分鐘', lat: 26.2208, lng: 127.6711, img: 'https://googleusercontent.com/image_collection/image_retrieval/7848503628720878107_0' },
-                        { time: '17:00 ~', location: '國際通飯店', note: '入住並逛街。', drive: '車程 15 分鐘', lat: 26.2155, lng: 127.6851, img: 'https://googleusercontent.com/image_collection/image_retrieval/425564182365260816_0' }
+                        { time: '12:20 - 13:30', location: '那霸機場', note: '抵達並取車。', drive: '取車預留 1 小時', lat: 26.2064, lng: 127.6465, img: 'https://rimage.gnst.jp/livejapan.com/public/article/detail/a/00/03/a0003004/img/basic/a0003004_main.jpg' },
+                        { time: '14:00 - 15:30', location: '瀨長島 Umikaji', note: '看飛機、吃幸福鬆餅。', alert: '鬆餅需提前預約', lat: 26.1745, lng: 127.6461, img: 'https://www.umikajiterrace.com/wp-content/uploads/2021/04/main_v.jpg' },
+                        { time: '15:50 - 16:45', location: '波上宮', note: '參拜懸崖上的神社。', drive: '車程 20 分鐘', lat: 26.2208, lng: 127.6711, img: 'https://images.fineartamerica.com/images/artworkimages/mediumlarge/3/naminoue-shrine-okinawa-japan-vladimir-pustovit.jpg' }
                     ],
                     2: [
-                        { time: '09:30 - 12:30', location: '砂邊潛水點', note: '潛水體驗、浜屋蕎麥麵。', lat: 26.3283, lng: 127.7433, img: 'https://googleusercontent.com/image_collection/image_retrieval/11013109927518652287_0' },
-                        { time: '13:00 - 15:00', location: '美國村', note: '漫步美式風情街道。', drive: '車程 10 分鐘', lat: 26.3163, lng: 127.7567, img: 'https://googleusercontent.com/image_collection/image_retrieval/9900968077599031916_0' },
-                        { time: '15:20 - 17:30', location: 'AEON Rycom', note: '1F 寶可夢中心。', alert: '限定皮卡丘必買', lat: 26.3142, lng: 127.7941, img: 'https://googleusercontent.com/image_collection/image_retrieval/1318296853961432082_0' },
-                        { time: '18:15 ~', location: '名護飯店', note: '前往北部住宿。', drive: '車程 45 分鐘', lat: 26.5915, lng: 127.9775, img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800' }
+                        { time: '09:30 - 12:30', location: '砂邊潛水點', note: '潛水、浜屋蕎麥麵。', lat: 26.3283, lng: 127.7433, img: 'https://travel.rakuten.com.tw/mytrip/sites/mytrip/files/2021-08/okinawa-diving_06.jpg' },
+                        { time: '13:00 - 15:00', location: '美國村', note: '漫步美式街道。', drive: '車程 10 分鐘', lat: 26.3163, lng: 127.7567, img: 'https://images.unsplash.com/photo-1542931287-023b922fa89b?w=500' },
+                        { time: '15:20 - 17:30', location: 'AEON MALL Rycom', note: '重點：1F 寶可夢中心。', alert: '沖繩限定皮卡丘必買', lat: 26.3142, lng: 127.7941, img: 'https://www.pokemon.co.jp/gp/pokecen/okinawa/images/main.jpg' }
                     ],
                     3: [
-                        { time: '09:00 - 12:00', location: '美麗海水族館', note: '看鯨鯊。', lat: 26.6944, lng: 127.8779, img: 'https://googleusercontent.com/image_collection/image_retrieval/11928344153965195785_0' },
-                        { time: '12:40 - 15:00', location: '古宇利島', note: '心形岩拍照。', drive: '車程 40 分鐘', lat: 26.7118, lng: 128.0163, img: 'https://googleusercontent.com/image_collection/image_retrieval/8330631990384596639_0' },
-                        { time: '15:30 - 17:30', location: '殘波岬燈塔', note: '看夕陽。', lat: 26.4385, lng: 127.7148, img: 'https://googleusercontent.com/image_collection/image_retrieval/17304240632473602939_0' },
-                        { time: '17:45 ~', location: '百年古家 大家', note: '阿古豬大餐。', lat: 26.6217, lng: 127.9644, img: 'https://googleusercontent.com/image_collection/image_retrieval/7257249681204978329_0' }
+                        { time: '09:00 - 12:00', location: '美麗海水族館', note: '鯨鯊與黑潮之海。', lat: 26.6944, lng: 127.8779, img: 'https://churaumi.okinawa/userfiles/files/shisetsu/main_visual01.jpg' },
+                        { time: '12:40 - 15:00', location: '古宇利島', note: '心形岩、蝦蝦飯。', drive: '跨海大橋必拍', lat: 26.7118, lng: 128.0163, img: 'https://rimage.gnst.jp/livejapan.com/public/article/detail/a/00/03/a0003011/img/basic/a0003011_main.jpg' },
+                        { time: '15:30 - 17:30', location: '殘波岬燈塔', note: '看壯觀夕陽。', lat: 26.4385, lng: 127.7148, img: 'https://www.visitokinawa.jp/wp-content/uploads/2019/12/Zampamisaki-Lighthouse_04.jpg' }
                     ],
                     4: [
-                        { time: '09:00 - 11:30', location: '玉泉洞', note: '鐘乳石洞。', lat: 26.1397, lng: 127.7503, img: 'https://googleusercontent.com/image_collection/image_retrieval/13025720447973238334_0' },
-                        { time: '11:50 - 12:45', location: '糸滿魚市場', note: '海鮮衝刺。', lat: 26.1311, lng: 127.6534, img: 'https://googleusercontent.com/image_collection/image_retrieval/5905154409957057003_0' },
-                        { time: '12:55 - 14:30', location: 'ASHIBINAA Outlet', note: '最後採買。', lat: 26.1585, lng: 127.6575, img: 'https://googleusercontent.com/image_collection/image_retrieval/15734631069828574714_0' },
-                        { time: '14:45 ~', location: '機場還車', note: '16:45 起飛。', lat: 26.2064, lng: 127.6465, img: 'https://images.unsplash.com/photo-1436491865332-7a61a109c0f2?w=800' }
+                        { time: '09:00 - 11:30', location: '玉泉洞', note: '鐘乳石洞景觀。', lat: 26.1397, lng: 127.7503, img: 'https://www.gyokusendo.co.jp/okinawaworld/common/images/main_visual_pc.jpg' },
+                        { time: '11:50 - 12:45', location: '糸滿魚市場', note: '海鮮最後衝刺。', lat: 26.1311, lng: 127.6534, img: 'https://rimage.gnst.jp/livejapan.com/public/article/detail/a/00/03/a0003015/img/basic/a0003015_main.jpg' },
+                        { time: '12:55 - 14:30', location: 'ASHIBINAA Outlet', note: '精品最後採買。', lat: 26.1585, lng: 127.6575, img: 'https://www.ashibinaa.com/images/main_visual01.jpg' }
                     ]
                 });
 
                 const currentDayItems = computed(() => itinerary.value[activeDay.value]);
 
                 onMounted(() => {
-                    // 初始化地圖，確保容器寬高已載入
-                    map.value = L.map('map', { zoomControl: false }).setView([26.3, 127.7], 10);
-                    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                        attribution: '&copy; CartoDB'
-                    }).addTo(map.value);
-                    
+                    map.value = L.map('map', { zoomControl: false }).setView([26.3, 127.8], 11);
+                    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(map.value);
                     updateMarkers();
                     initScrollObserver();
-                    
-                    // 修正手機端地圖大小不正確的問題
-                    setTimeout(() => { map.value.invalidateSize(); }, 500);
+                    setTimeout(() => map.value.invalidateSize(), 500);
                 });
 
                 const updateMarkers = () => {
@@ -133,7 +129,7 @@
                     );
                     if (markers.value.length) {
                         const group = new L.featureGroup(markers.value);
-                        map.value.fitBounds(group.getBounds().pad(0.1));
+                        map.value.fitBounds(group.getBounds().pad(0.15));
                     }
                 };
 
@@ -143,22 +139,16 @@
                             if (entry.isIntersecting) {
                                 const lat = entry.target.getAttribute('data-lat');
                                 const lng = entry.target.getAttribute('data-lng');
-                                if (map.value) map.value.flyTo([lat, lng], 14, { animate: true, duration: 1 });
+                                map.value.flyTo([lat, lng], 14, { animate: true });
                                 document.querySelectorAll('.spot-card').forEach(el => el.classList.remove('active'));
                                 entry.target.classList.add('active');
                             }
                         });
-                    }, { threshold: 0.5 });
+                    }, { threshold: 0.6, rootMargin: '0px 0px -20% 0px' });
                     document.querySelectorAll('.spot-card').forEach(el => observer.observe(el));
                 };
 
-                watch(activeDay, () => {
-                    setTimeout(() => {
-                        updateMarkers();
-                        initScrollObserver();
-                        document.querySelector('.overflow-y-auto').scrollTop = 0;
-                    }, 100);
-                });
+                watch(activeDay, () => setTimeout(() => { updateMarkers(); initScrollObserver(); document.querySelector('#list-view').scrollTop = 0; }, 100));
 
                 return { activeDay, currentDayItems };
             }

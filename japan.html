@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>沖繩 2026 終極自駕指南</title>
+    <title>沖繩 2026 深度自駕指南</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -35,7 +35,7 @@
             <header class="p-6 border-b sticky top-0 bg-white/90 backdrop-blur-xl z-20">
                 <div class="flex justify-between items-center mb-4">
                     <h1 class="text-2xl font-black text-slate-900 tracking-tighter italic">OKINAWA 2026</h1>
-                    <span class="text-[10px] bg-blue-600 text-white px-2 py-1 rounded-full font-bold">深度掃貨版</span>
+                    <span class="text-[10px] bg-blue-600 text-white px-2 py-1 rounded-full font-bold">深度自駕版</span>
                 </div>
                 <div class="flex space-x-2 overflow-x-auto no-scrollbar pb-1">
                     <button v-for="n in 4" :key="n" @click="activeDay = n" 
@@ -72,10 +72,10 @@
                     <div class="space-y-4">
                         <div class="flex items-start">
                             <div class="mt-1 mr-3 bg-blue-100 p-1.5 rounded-lg text-blue-600">
-                                <i class="fas fa-star text-xs"></i>
+                                <i class="fas fa-hiking text-xs"></i>
                             </div>
                             <p class="text-slate-700 text-sm font-bold leading-relaxed">
-                                <span class="text-blue-500 mr-1">重點：</span>{{ item.note }}
+                                <span class="text-blue-500 mr-1">活動：</span>{{ item.note }}
                             </p>
                         </div>
                         <div class="flex items-center justify-between text-[11px] font-bold border-t border-slate-100 pt-4">
@@ -102,30 +102,29 @@
                 
                 const itinerary = ref({
                     1: [
-                        { time: '13:40 - 14:30', location: '沖宮 (奧武山公園)', stay: '50m', note: '琉球八社能量參拜，就在機場出口附近。', drive: '🚗 15 min', lat: 26.2045, lng: 127.6749, img: 'https://cdn.mainichi.jp/vol1/2016/11/04/20161104org00m040003000p/9.jpg' },
-                        { time: '14:45 - 16:15', location: '瀨長島 Umikaji Terrace', stay: '1.5h', note: '吃幸福鬆餅、拍純白階梯海景。', drive: '🚗 20 min', lat: 26.1745, lng: 127.6461, img: 'https://www.umikajiterrace.com/wp-content/uploads/2021/04/main_v.jpg' },
-                        { time: '16:35 - 17:30', location: '波上宮', stay: '55m', note: '買御守，拍懸崖神社全景。', drive: '🚗 10 min', lat: 26.2208, lng: 127.6711, img: 'https://www.visitokinawa.jp/wp-content/uploads/2021/10/Naminoue-Shrine_01-1600x900.jpg' },
-                        { time: '17:40 - 19:30', location: '國際通逛街', stay: '2h', note: '放行李，深度採買土產雜貨。', drive: '🚗 10 min', lat: 26.2144, lng: 127.6845, img: 'https://rimage.gnst.jp/livejapan.com/public/article/detail/a/00/03/a0003009/img/basic/a0003009_main.jpg' },
-                        { time: '19:40 - 21:40', location: '晚餐選擇 (新都心)', stay: '2h', note: '目利銀次或通堂拉麵。', drive: '🏠 住宿：那霸', lat: 26.2289, lng: 127.6947, img: 'https://img.ltn.com.tw/Upload/playing/page/2018/10/24/181024-11110-1-pMvB9.jpg' }
+                        { time: '13:40 - 14:30', location: '沖宮 (奧武山公園)', stay: '50m', note: '參拜琉球八社之一，感受與自然交融的神社建築。', drive: '🚗 15 min', lat: 26.2045, lng: 127.6749, img: 'https://cdn.mainichi.jp/vol1/2016/11/04/20161104org00m040003000p/9.jpg' },
+                        { time: '14:45 - 16:15', location: '瀨長島 Umikaji Terrace', stay: '1.5h', note: '吃幸福鬆餅、拍純白階梯建築、看飛機起降。', drive: '🚗 20 min', lat: 26.1745, lng: 127.6461, img: 'https://www.umikajiterrace.com/wp-content/uploads/2021/04/main_v.jpg' },
+                        { time: '16:35 - 17:30', location: '波上宮', stay: '55m', note: '買限定御守，去海灘拍「懸崖上的神社」全景。', drive: '🚗 10 min', lat: 26.2208, lng: 127.6711, img: 'https://www.visitokinawa.jp/wp-content/uploads/2021/10/Naminoue-Shrine_01-1600x900.jpg' },
+                        { time: '17:40 - 21:40', location: '國際通 & 晚餐', stay: '4h', note: '採買特色土產，晚餐可選目利銀次或通堂拉麵。', drive: '🏠 住宿：那霸市區', lat: 26.2144, lng: 127.6845, img: 'https://rimage.gnst.jp/livejapan.com/public/article/detail/a/00/03/a0003009/img/basic/a0003009_main.jpg' }
                     ],
                     2: [
-                        { time: '08:30 - 09:30', location: 'Shinmei Coffee', stay: '1h', note: '用精品咖啡開啟這一天。', drive: '🚗 25 min', lat: 26.2415, lng: 127.7212, img: 'https://lh3.googleusercontent.com/p/AF1QipN3-Z3vXN2jG6q5V_MvU7B_YqY_p_Y' },
-                        { time: '10:00 - 13:00', location: '砂邊潛水 & 浜屋', stay: '3h', note: '潛水後吃最有名的軟骨麵。', drive: '🚗 20 min', lat: 26.3283, lng: 127.7433, img: 'https://okinawa-labo.com/wp-content/uploads/2018/06/6f755e149176313170757659a8be8f94.jpg' },
-                        { time: '13:20 - 14:50', location: '港川外人住宅', stay: '1.5h', note: '彩色美軍小屋、必買水果塔。', drive: '🚗 20 min', lat: 26.2625, lng: 127.7144, img: 'https://www.visitokinawa.jp/wp-content/uploads/2021/10/Minatogawa-Stateside-Town_02-1600x900.jpg' },
-                        { time: '15:10 - 17:15', location: 'AEON Rycom (寶可夢)', stay: '2h', note: '1F 寶可夢中心限定商品掃貨。', drive: '🚗 15 min', lat: 26.3142, lng: 127.7941, img: 'https://www.pokemon.co.jp/gp/pokecen/okinawa/images/main.jpg' },
-                        { time: '17:30 - 21:00', location: '美國村 & 琉球之牛', stay: '3.5h', note: '落日絕景、享用頂級燒肉晚餐。', drive: '🚗 45 min', lat: 26.3163, lng: 127.7567, img: 'https://www.u-shi.net/images/top_visual_01_pc.jpg' }
+                        { time: '08:00 - 09:30', location: 'Potama 飯糰 & Shinmei', stay: '1.5h', note: '體驗國民美食炸蝦豬肉蛋飯糰搭配精品咖啡。', drive: '🚗 25 min', lat: 26.2155, lng: 127.6765, img: 'https://okinawa-labo.com/wp-content/uploads/2017/02/7e74d15024222f7b8846c4f34691456a.jpg' },
+                        { time: '10:00 - 13:00', location: '砂邊潛水 & 浜屋', stay: '3h', note: '潛水體驗後享用入口即化的軟骨蕎麥麵。', drive: '🚗 20 min', lat: 26.3283, lng: 127.7433, img: 'https://okinawa-labo.com/wp-content/uploads/2018/06/6f755e149176313170757659a8be8f94.jpg' },
+                        { time: '13:20 - 15:20', location: '港川外人住宅', stay: '2h', note: '拍 UFO 漢堡、體驗客製化調香、買水果塔。', drive: '🚗 20 min', lat: 26.2625, lng: 127.7144, img: 'https://www.visitokinawa.jp/wp-content/uploads/2021/10/Minatogawa-Stateside-Town_02-1600x900.jpg' },
+                        { time: '15:40 - 17:30', location: 'AEON Rycom (寶可夢)', stay: '1.9h', note: '1F 沖繩限定版寶可夢中心掃貨。', drive: '🚗 15 min', lat: 26.3142, lng: 127.7941, img: 'https://www.pokemon.co.jp/gp/pokecen/okinawa/images/main.jpg' },
+                        { time: '17:45 - 21:00', location: '美國村 & 琉球之牛', stay: '3.1h', note: '漫步異國街區看夕陽，享用頂級和牛燒肉。', drive: '🚗 45 min 直達北部', lat: 26.3163, lng: 127.7567, img: 'https://www.u-shi.net/images/top_visual_01_pc.jpg' }
                     ],
                     3: [
-                        { time: '09:40 - 12:40', location: '美麗海水族館', stay: '3h', note: '看鯨鯊大水槽、餵食秀。', drive: '🚗 40 min', lat: 26.6944, lng: 127.8779, img: 'https://churaumi.okinawa/userfiles/files/shisetsu/main_visual01.jpg' },
-                        { time: '13:20 - 15:20', location: '古宇利島', stay: '2h', note: '心形岩、午餐吃蝦蝦飯。', drive: '🚗 50 min', lat: 26.7118, lng: 128.0163, img: 'https://okinawa-labo.com/wp-content/uploads/2015/07/04e90897585ec840f0970a7df8544c01.jpg' },
-                        { time: '16:10 - 17:15', location: '殘波岬燈塔', stay: '1h', note: '登塔看夕陽海景。', drive: '🚗 15 min', lat: 26.4385, lng: 127.7148, img: 'https://rimage.gnst.jp/livejapan.com/public/article/detail/a/00/03/a0003013/img/basic/a0003013_main.jpg' },
-                        { time: '17:30 - 19:30', location: '百年古家 大家', stay: '2h', note: '端午大餐，阿古豬涮涮鍋。', drive: '🚗 30 min', lat: 26.6217, lng: 127.9644, img: 'https://www.ufuya.com/common/images/home/main_visual01.jpg' }
+                        { time: '09:40 - 12:40', location: '美麗海水族館', stay: '3h', note: '觀賞黑潮之海鯨鯊秀、海豚劇場表演。', drive: '🚗 40 min', lat: 26.6944, lng: 127.8779, img: 'https://churaumi.okinawa/userfiles/files/shisetsu/main_visual01.jpg' },
+                        { time: '13:20 - 15:20', location: '古宇利島', stay: '2h', note: '拍跨海大橋與心形岩，吃超人氣蝦蝦飯。', drive: '🚗 40 min', lat: 26.7118, lng: 128.0163, img: 'https://okinawa-labo.com/wp-content/uploads/2015/07/04e90897585ec840f0970a7df8544c01.jpg' },
+                        { time: '16:00 - 17:10', location: '海中展望塔', stay: '1.1h', note: '不用濕身也能在水下 5 米觀察熱帶魚。', drive: '🚗 20 min', lat: 26.5397, lng: 127.9295, img: 'https://www.busena-marinepark.com/common/img/observatory/mv.jpg' },
+                        { time: '17:30 - 19:30', location: '百年古家 大家', stay: '2h', note: '端午節大餐！古宅內享用阿古豬涮涮鍋。', drive: '🏠 住宿：北部或恩納', lat: 26.6217, lng: 127.9644, img: 'https://www.ufuya.com/common/images/home/main_visual01.jpg' }
                     ],
                     4: [
-                        { time: '08:30 - 09:30', location: 'A&W 糸滿店', stay: '1h', note: '美式早餐，Root Beer 喝到飽。', drive: '🚗 20 min', lat: 26.1511, lng: 127.6745, img: 'https://rimage.gnst.jp/livejapan.com/public/article/detail/a/00/01/a0001859/img/basic/a0001859_main.jpg' },
-                        { time: '09:50 - 11:30', location: '玉泉洞 (沖繩世界)', stay: '1.6h', note: '探索鐘乳石洞窟。', drive: '🚗 20 min', lat: 26.1397, lng: 127.7503, img: 'https://www.gyokusendo.co.jp/okinawaworld/common/images/main_visual_pc.jpg' },
-                        { time: '11:50 - 12:50', location: '糸滿魚市場', stay: '1h', note: '最後海鮮衝刺：生蠔海膽。', drive: '🚗 10 min', lat: 26.1311, lng: 127.6534, img: 'https://okinawa-labo.com/wp-content/uploads/2016/09/848386c91a13e51f88a914392ebbc928.jpg' },
-                        { time: '13:00 - 14:30', location: 'ASHIBINAA Outlet', stay: '1.5h', note: '登機前最後採買衝刺。', drive: '🚗 15 min 至還車點', lat: 26.1585, lng: 127.6575, img: 'https://www.ashibinaa.com/images/main_visual01.jpg' }
+                        { time: '08:30 - 09:30', location: 'A&W 糸滿店', stay: '1h', note: '經典美式早餐，Root Beer 無限續杯。', drive: '🚗 20 min', lat: 26.1511, lng: 127.6745, img: 'https://rimage.gnst.jp/livejapan.com/public/article/detail/a/00/01/a0001859/img/basic/a0001859_main.jpg' },
+                        { time: '09:50 - 11:30', location: '玉泉洞 (沖繩世界)', stay: '1.6h', note: '探索 30 萬年鐘乳石洞、逛王國村。', drive: '🚗 20 min', lat: 26.1397, lng: 127.7503, img: 'https://www.gyokusendo.co.jp/okinawaworld/common/images/main_visual_pc.jpg' },
+                        { time: '11:50 - 12:50', location: '糸滿魚市場', stay: '1h', note: '最後海鮮衝刺：生蠔、海膽與各式烤物。', drive: '🚗 10 min', lat: 26.1311, lng: 127.6534, img: 'https://okinawa-labo.com/wp-content/uploads/2016/09/848386c91a13e51f88a914392ebbc928.jpg' },
+                        { time: '13:00 - 14:30', location: 'ASHIBINAA Outlet', stay: '1.5h', note: '登機前最後採買衝刺，品牌折扣最後掃貨。', drive: '🚗 15 min 至還車點', lat: 26.1585, lng: 127.6575, img: 'https://www.ashibinaa.com/images/main_visual01.jpg' }
                     ]
                 });
 
